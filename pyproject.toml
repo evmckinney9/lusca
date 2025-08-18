@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools", "wheel", "setuptools_rust"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{project_name}}"
+description = "{{project_description}}"
+version = "0.1.0"
+authors = [{ name = "{{author_name}}" }]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "LovelyPlots",
+    # "qiskit",
+    # "qutip",
+    # "weylchamber",
+]
+
+[project.optional-dependencies]
+dev = ["ipykernel", "pylatexenc", "ipywidgets"]
+format = [
+    "pre-commit",
+    "ruff",
+    # "black[jupyter]",
+    # "tomli",
+    # "docformatter[tomli]",
+]
+test = ["pytest"]
+
+[tool.ruff]
+target-version = "py311"
+fix = true
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+# select = ["E", "F", "I", "UP", "B", "D"]  # pycodestyle, pyflakes, isort, pyupgrade, bugbear, docstrings
+select = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[[tool.setuptools-rust.ext-modules]]
+# Private Rust extension module to be nested into the Python package
+# https://github.com/PyO3/setuptools-rust?tab=readme-ov-file
+target = "{{project_name}}._accelerate"
+path = "crates/Cargo.toml"
+binding = "PyO3"
+
+[tool.distutils.bdist_wheel]
+py_limited_api = "cp39"
