@@ -3,7 +3,7 @@ description: File a bug report for Python Project
 title: "[Bug]: "
 labels: ["bug", "triage"]
 assignees:
-  - {{github_username}}
+  - evmckinney9
 body:
   - type: markdown
     attributes:

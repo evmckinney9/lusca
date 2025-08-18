@@ -1,6 +1,6 @@
 """Test the Electron class."""
 
-from src.{{project_name}}.main import Electron
+from src.lusca.main import Electron
 
 
 def test_electron():

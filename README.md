@@ -1,29 +1,92 @@
-# Python Project Template
+## lusca
 
-## My opinionated python boilerplate.
+![CI](https://github.com/evmckinney9/lusca/actions/workflows/ci.yml/badge.svg?branch=main)
+![Python](https://img.shields.io/badge/python-3.10_|_3.11_|_3.12-blue.svg)
+![Ruff](https://img.shields.io/badge/linter-ruff-green.svg)
+<a href="https://colab.research.google.com/github/evmckinney9/lusca/blob/main/src/notebooks/01_main.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-This template is structured around integrating advanced tools and configurations to ensure code quality, consistency, and the efficient use of Python and its ecosystem.
+## 📌 Project Overview
+- [Link to paper:](https://arxiv.org/)
+- **Overview**: assorted tools
+- **Objective**:
+- **Strategy**:
 
-### Features
+> [!IMPORTANT]  
+> This is an important note. Make sure to fill out the "Overview," "Objective," and "Strategy" sections with specific information about your project.
 
-- **`make` commands**: Simplified commands for initializing, upgrading, cleaning, testing, and formatting the project.
-- **`PyO3` & `setuptools_rust`**: Added support for integrating Rust code into the Python package.
-- **GitHub Actions**: Automated building and releasing of Python wheels as GitHub releases.
+## 🌟 Key Features
 
-### Configuration Choices
+- **Algorithm**: Defined in `src/**.py`
 
-This project uses various tools and configurations to maintain a high standard of code quality and consistency:
+![image](https://github.com/evmckinney9/lusca/images/plot.png)
 
-- **Ruff**: A high-performance Python linter built in Rust. [Ruff](https://github.com/charliermarsh/ruff) is utilized in this project for its speed and extensive rule set. It consolidates the functionality of various tools like Flake8, isort, pydocstyle, and more, into a single, fast, and efficient package.
-- **Black formatter**: The code is automatically formatted using the [Black](https://github.com/psf/black) code formatter, ensuring a consistent code style across the project.
-- **isort**: Imports are sorted and organized using [isort](https://github.com/PyCQA/isort), following the Black-compatible profile.
-- **pre-commit**: A set of [pre-commit](https://pre-commit.com/) hooks are used to automatically check and enforce code quality standards, such as trailing whitespace removal, JSON formatting, and more.
-- **docformatter**: The docstrings are formatted using [docformatter](https://github.com/PyCQA/docformatter) to ensure consistency and readability.
-- **pytest**: Tests are written and executed using the [pytest](https://docs.pytest.org/en/latest/) framework.
+> [!WARNING]  
+> This is a warning. Ensure to understand the algorithm and its limitations.
 
-### References:
-- [Python Project Template by Rocha Bruno](https://github.com/rochacbruno/python-project-template)
-- [Opinionated Python Boilerplate by Duarte O. Carmo](https://duarteocarmo.com/blog/opinionated-python-boilerplate)
-- [Dynamic GitHub Repository Templates by Simon Willison](https://simonwillison.net/2021/Aug/28/dynamic-github-repository-templates/)
-- [Quantum Prototype Template by Qiskit Community](https://github.com/qiskit-community/quantum-prototype-template)
-- [nbQA: A Tool for Running Linters on Jupyter Notebooks](https://github.com/nbQA-dev/nbQA)
+## 📊 Results & Comparisons
+
+- **Experiments**: Detailed in `src/notebooks/results`
+- **Findings**:
+
+![image](https://github.com/evmckinney9/lusca/images/plot.png)
+
+## 🚀 Getting Started
+
+To use lusca, install using the following command:
+
+```bash
+pip install -e git+https://github.com/evmckinney9/lusca#egg=lusca
+```
+
+Then get started by exploring the main demo located at `src/lusca/notebooks/01_main.ipynb`.
+
+### 💻🐒 Usage
+
+```python
+from lusca import *
+Foo()
+```
+
+> [!NOTE]  
+> This is an important note. Make sure to consult the demo notebook for usage examples.
+
+### 📋 Prerequisites
+
+- **Package Dependencies**:
+
+  - `package_name`
+
+- **Installation**:
+
+  - More details as needed.
+
+### Software Info💻🐒
+
+- **Please report any issues**. 😺
+- The main logic does ...
+- For more details, see code documentation or contact me.
+
+Additional utility commands available in the Makefile:
+
+- **make format**: Formats the codebase.
+- **make clean**: Cleans up temporary and unnecessary files.
+- **make test**: Runs tests to ensure code functionality.
+- For more information about the repository structure, visit my [python-template](https://github.com/evmckinney9/python-template).
+
+## 📚 Reference
+
+```bibtex
+@misc{cite_key,
+      title={{Title}},
+      author={{Author1 and Author2 and Author3}},
+      year={{Year}},
+      eprint={{eprint}},
+      archivePrefix={{ArchivePrefix}},
+      primaryClass={{PrimaryClass}}
+}
+```
+
+## 👯 Contributors
+<a href = "https://github.com/evmckinney9/lusca/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=evmckinney9/lusca"/>
+</a>

@@ -3,7 +3,7 @@ description: Suggest a new idea for the Python Project
 title: "[Feature Request]: "
 labels: ["enhancement"]
 assignees:
-  - {{github_username}}
+  - evmckinney9
 body:
   - type: markdown
     attributes:
