@@ -2,22 +2,20 @@
 import os
 from pathlib import Path
 import numpy as np, matplotlib.pyplot as plt
+import lusca
 
 HERE = Path(__file__).parent
-NPZ = HERE / "trig_demo.npz"
-
+NPZ  = HERE / "trig_demo.npz"
 
 def main():
     os.chdir(HERE)
     data = np.load(NPZ)
-    x_data = data["x_data"]
-    sine = data["sine"]
-    cosine = data["cosine"]
-    tanh = data["tanh"]
+    x_data = data['x_data']
+    sine = data['sine']
+    cosine = data['cosine']
+    tanh = data['tanh']
 
     # ---- begin captured plotting cell ----
-    import lusca.render
-
     with plt.style.context("lusca"):
         fig, axes = plt.subplots(
             1, 2, figsize=(7.0, 2.6), sharey=True, constrained_layout=True
@@ -40,7 +38,6 @@ def main():
         axes[1].legend(loc="lower center", bbox_to_anchor=(0.5, -0.35), ncol=2)
         plt.show()
     # ---- end captured plotting cell ----
-
 
 if __name__ == "__main__":
     main()

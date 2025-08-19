@@ -2,21 +2,19 @@
 import os
 from pathlib import Path
 import numpy as np, matplotlib.pyplot as plt
+import lusca
 
 HERE = Path(__file__).parent
-NPZ = HERE / "poly_demo.npz"
-
+NPZ  = HERE / "poly_demo.npz"
 
 def main():
     os.chdir(HERE)
     data = np.load(NPZ)
-    x_data = data["x_data"]
-    poly = data["poly"]
-    derivative = data["derivative"]
+    x_data = data['x_data']
+    poly = data['poly']
+    derivative = data['derivative']
 
     # ---- begin captured plotting cell ----
-    import lusca.render
-
     with plt.style.context("lusca"):
         fig, axes = plt.subplots(
             1, 2, figsize=(7.0, 2.6), sharey=False, constrained_layout=True
@@ -29,9 +27,7 @@ def main():
         axes[0].set_ylabel("Y-axis")
         axes[0].legend()
 
-        axes[1].plot(
-            x_data, derivative, color="tab:orange", label="Derivative $3x^2 - 1$"
-        )
+        axes[1].plot(x_data, derivative, color="tab:orange", label="Derivative $3x^2 - 1$")
         axes[1].axhline(0, color="k", linestyle=":", lw=1)
         axes[1].set_title("Derivative")
         axes[1].set_xlabel("X-axis")
@@ -39,7 +35,6 @@ def main():
 
         plt.show()
     # ---- end captured plotting cell ----
-
 
 if __name__ == "__main__":
     main()

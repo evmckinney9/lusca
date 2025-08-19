@@ -2,21 +2,19 @@
 import os
 from pathlib import Path
 import numpy as np, matplotlib.pyplot as plt
+import lusca
 
 HERE = Path(__file__).parent
-NPZ = HERE / "exp_demo.npz"
-
+NPZ  = HERE / "exp_demo.npz"
 
 def main():
     os.chdir(HERE)
     data = np.load(NPZ)
-    x_data = data["x_data"]
-    gaussian = data["gaussian"]
-    exp_decay = data["exp_decay"]
+    x_data = data['x_data']
+    gaussian = data['gaussian']
+    exp_decay = data['exp_decay']
 
     # ---- begin captured plotting cell ----
-    import lusca.render
-
     with plt.style.context("lusca"):
         fig, ax = plt.subplots(figsize=(3.5, 2.6), constrained_layout=True)
 
@@ -29,7 +27,6 @@ def main():
         ax.legend(loc="upper right")
         plt.show()
     # ---- end captured plotting cell ----
-
 
 if __name__ == "__main__":
     main()

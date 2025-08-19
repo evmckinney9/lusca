@@ -1,31 +1,18 @@
 [build-system]
-requires = ["setuptools", "wheel", "setuptools_rust"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "lusca"
-description = "assorted tools"
+description = "A Jupyter magic command for creating reproducible matplotlib figures."
 version = "0.1.0"
 authors = [{ name = "evmckinney9" }]
 requires-python = ">=3.9"
-dependencies = [
-    "numpy",
-    "matplotlib",
-    "LovelyPlots",
-    # "qiskit",
-    # "qutip",
-    # "weylchamber",
-]
+dependencies = ["numpy", "matplotlib"]
 
 [project.optional-dependencies]
 dev = ["ipykernel", "pylatexenc", "ipywidgets", "pre-commit"]
-format = [
-    "pre-commit",
-    "ruff",
-    # "black[jupyter]",
-    # "tomli",
-    # "docformatter[tomli]",
-]
+format = ["pre-commit", "ruff"]
 test = ["pytest"]
 
 [tool.ruff]
@@ -33,19 +20,10 @@ target-version = "py312"
 fix = true
 extend-include = ["*.ipynb"]
 
+# pycodestyle, pyflakes, isort, pyupgrade, bugbear, docstrings
 [tool.ruff.lint]
-# select = ["E", "F", "I", "UP", "B", "D"]  # pycodestyle, pyflakes, isort, pyupgrade, bugbear, docstrings
-select = ["D"]
+select = ["E", "F", "I", "UP", "B", "D"]
+# select = ["D"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[[tool.setuptools-rust.ext-modules]]
-# Private Rust extension module to be nested into the Python package
-# https://github.com/PyO3/setuptools-rust?tab=readme-ov-file
-target = "lusca._accelerate"
-path = "crates/Cargo.toml"
-binding = "PyO3"
-
-[tool.distutils.bdist_wheel]
-py_limited_api = "cp39"

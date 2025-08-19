@@ -1,4 +1,4 @@
-"""Jupyter magic for freezing matplotlib plots, saving data and generating reproducible scripts.
+"""Jupyter magic for freezing matplotlib plots and saving data.
 
 This module provides the %%mplfreeze magic command for Jupyter/IPython, which captures
 plotting cells, saves specified variables to compressed NPZ files, exports figures in
@@ -49,6 +49,7 @@ def _write_replot(root: Path, cell_src: str, base: str, varnames: list[str]) -> 
 import os
 from pathlib import Path
 import numpy as np, matplotlib.pyplot as plt
+import lusca
 
 HERE = Path(__file__).parent
 NPZ  = HERE / "{base}.npz"
@@ -85,7 +86,8 @@ def mplfreeze(line: str, cell: str):
         with plt.style.context("lusca"):
             fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.6), sharey=True)
             axes[0].plot(x_data, sine); axes[0].plot(x_data, cosine)
-            axes[1].plot(sine, tanh, linestyle="--"); axes[1].plot(cosine, tanh, linestyle="--")
+            axes[1].plot(sine, tanh, linestyle="--")
+            axes[1].plot(cosine, tanh, linestyle="--")
             plt.show()  # optional
 
     Raises:
