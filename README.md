@@ -1,90 +1,16 @@
 ## lusca
 
 ![CI](https://github.com/evmckinney9/lusca/actions/workflows/ci.yml/badge.svg?branch=main)
-![Python](https://img.shields.io/badge/python-3.10_|_3.11_|_3.12-blue.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue.svg)
 ![Ruff](https://img.shields.io/badge/linter-ruff-green.svg)
-<a href="https://colab.research.google.com/github/evmckinney9/lusca/blob/main/src/notebooks/01_main.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-## 📌 Project Overview
-- [Link to paper:](https://arxiv.org/)
-- **Overview**: assorted tools
-- **Objective**:
-- **Strategy**:
+This repository is the successor to:
+- https://github.com/Pitt-JonesLab/quantum_logical
+- https://github.com/PITT-HATLAB/corral_crowding
+- https://github.com/evmckinney9/transpile_benchy
+- https://github.com/evmckinney9/workspace
 
-> [!IMPORTANT]  
-> This is an important note. Make sure to fill out the "Overview," "Objective," and "Strategy" sections with specific information about your project.
-
-## 🌟 Key Features
-
-- **Algorithm**: Defined in `src/**.py`
-
-![image](https://github.com/evmckinney9/lusca/images/plot.png)
-
-> [!WARNING]  
-> This is a warning. Ensure to understand the algorithm and its limitations.
-
-## 📊 Results & Comparisons
-
-- **Experiments**: Detailed in `src/notebooks/results`
-- **Findings**:
-
-![image](https://github.com/evmckinney9/lusca/images/plot.png)
-
-## 🚀 Getting Started
-
-To use lusca, install using the following command:
-
-```bash
-pip install -e git+https://github.com/evmckinney9/lusca#egg=lusca
-```
-
-Then get started by exploring the main demo located at `src/lusca/notebooks/01_main.ipynb`.
-
-### 💻🐒 Usage
-
-```python
-from lusca import *
-Foo()
-```
-
-> [!NOTE]  
-> This is an important note. Make sure to consult the demo notebook for usage examples.
-
-### 📋 Prerequisites
-
-- **Package Dependencies**:
-
-  - `package_name`
-
-- **Installation**:
-
-  - More details as needed.
-
-### Software Info💻🐒
-
-- **Please report any issues**. 😺
-- The main logic does ...
-- For more details, see code documentation or contact me.
-
-Additional utility commands available in the Makefile:
-
-- **make format**: Formats the codebase.
-- **make clean**: Cleans up temporary and unnecessary files.
-- **make test**: Runs tests to ensure code functionality.
-- For more information about the repository structure, visit my [python-template](https://github.com/evmckinney9/python-template).
-
-## 📚 Reference
-
-```bibtex
-@misc{cite_key,
-      title={{Title}},
-      author={{Author1 and Author2 and Author3}},
-      year={{Year}},
-      eprint={{eprint}},
-      archivePrefix={{ArchivePrefix}},
-      primaryClass={{PrimaryClass}}
-}
-```
+which were intended to be project-agnostic bespoke tools for my quantum simulation research. In other words, whatever wrappers I use for qiskit/qutip/etc coding. For example, `quantum_logical` contained kraus operator definitions for qutrit error channels and an accompanying Trotter product simulator. Also, `transpile_benchy` is a wrapper of `Qiskit.transpiler` with matplotlib visuals. The intention is to unify my standard research tools and visualization code.
 
 ## 👯 Contributors
 <a href = "https://github.com/evmckinney9/lusca/graphs/contributors">

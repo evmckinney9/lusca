@@ -1,0 +1,50 @@
+# === Figure ===
+figure.figsize: 3.5, 2.6 # compact, journal-friendly
+figure.dpi: 600
+
+# === Fonts ===
+font.family: DejaVu Sans # simple, consistent with your prefs
+font.size: 10 # between 8 and 16; scales well
+mathtext.fontset: dejavusans # TeX-like look without usetex
+axes.unicode_minus: True
+
+# === Axes & Lines ===
+axes.linewidth: 1.0 # not too heavy (compromise: 0.5 vs 3)
+axes.labelpad: 4
+grid.linewidth: 0.5
+
+# Clean, readable categorical cycle
+# axes.prop_cycle: cycler('color', ['0C5DA5', '00B945', 'FF9500', 'FF2C00', '845B97', '474747', '9e9e9e'])
+lines.linewidth: 1.5
+lines.markersize: 4
+lines.markeredgewidth: 0.8
+lines.markerfacecolor: w
+
+# === Ticks ===
+xtick.top: True
+ytick.right: True
+xtick.direction: in
+ytick.direction: in
+xtick.minor.visible: False
+ytick.minor.visible: False
+
+# Compromise sizes/widths (between big/heavy and tiny/light)
+xtick.major.size: 5
+xtick.major.width: 1.0
+xtick.minor.size: 3
+xtick.minor.width: 0.8
+ytick.major.size: 5
+ytick.major.width: 1.0
+ytick.minor.size: 3
+ytick.minor.width: 0.8
+
+# === Legend ===
+# Legend properties (base.mplstyle)
+legend.frameon: False
+legend.framealpha: 0
+legend.loc: lower center
+legend.handletextpad: 0.4
+
+# === Saving ===
+# savefig.bbox: tight
+savefig.pad_inches: 0.02
