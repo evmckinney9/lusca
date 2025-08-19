@@ -10,7 +10,7 @@
 
 ## 📊 `%%mplfreeze` Command
 
-The `%%mplfreeze` magic command is designed for scientific programming workflows in Jupyter notebooks. Often, you want to use Jupyter for experiments but may not w ant to rerun the entire notebook to recreate plots. Additionally, saving data and figures is essential for artifact generation and reproducibility.
+The `%%mplfreeze` magic command is designed for scientific programming workflows in Jupyter notebooks. Often, you want to use Jupyter for experiments but may not want to rerun the entire notebook to recreate plots. Additionally, saving data and figures is essential for artifact generation and reproducibility.
 
 
 Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell.
