@@ -3,7 +3,7 @@ name: CI (release)
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -30,9 +30,6 @@ jobs:
       CIBW_SKIP: "cp36-* cp37-* cp38-* pp* *-win32 *-musllinux* *_i686"
     steps:
       - uses: actions/checkout@v4
-
-      # Install Rust (cross-platform)
-      - uses: dtolnay/rust-toolchain@stable
 
       # Optional: if you need system deps, add them per OS here
 
