@@ -21,14 +21,17 @@ The `%%mplfreeze` magic command is designed for scientific programming workflows
 - Creates a minimal standalone script that reproduces the figure.
 - Leverages `lusca`'s built-in stylesheet.
 
-### How It Works
-
-Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell. The command organizes data, figures, and scripts into a directory for easy reuse.
-
-### Usage
-
+Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell.
 ```python
 %%mplfreeze <name> [vars ...] [--outdir DIR]
+```
+- `<name>`: Base name for outputs (folder + files).
+- `[vars ...]`: Variable names to save into the NPZ file.
+- `[--outdir DIR]`: (Optional) Parent output directory (default: `docs/figs`).
+
+### Example
+
+```python
 # Example:
 %%mplfreeze trig_demo x_data sine cosine tanh
 with plt.style.context("lusca"):
@@ -37,12 +40,6 @@ with plt.style.context("lusca"):
     axes[0].plot(x_data, cosine, label="Cosine")
     plt.show()
 ```
-
-- `<name>`: Base name for outputs (folder + files).
-- `[vars ...]`: Variable names to save into the NPZ file.
-- `[--outdir DIR]`: (Optional) Parent output directory (default: `docs/figs`).
-
-### Example
 
 An example notebook is available in `src/lusca/01_main.ipynb`. The generated plots are saved in `docs/figs/` with the following structure:
 
