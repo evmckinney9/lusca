@@ -3,15 +3,16 @@
 ![CI](https://github.com/evmckinney9/lusca/actions/workflows/ci.yml/badge.svg?branch=main) ![Python](https://img.shields.io/badge/python-3.12-blue.svg) ![Ruff](https://img.shields.io/badge/linter-ruff-green.svg)
 
 `lusca` is a Python library for creating reproducible matplotlib figures using Jupyter magic commands.
+
+Often, you want to use Jupyter for experiments but may not want to rerun the entire notebook to recreate plots. Additionally, saving data and figures is essential for artifact generation and reproducibility.
+
+## 📊 `%%mplfreeze` Command
+
+The `%%mplfreeze` magic command:
 - Captures the data used in your plots and saves it in a compressed NPZ file.
 - Automatically exports your figures in multiple useful formats.
 - Creates a minimal standalone script that reproduces the figure.
 - Leverages `lusca`'s built-in stylesheet.
-
-## 📊 `%%mplfreeze` Command
-
-The `%%mplfreeze` magic command is designed for scientific programming workflows in Jupyter notebooks. Often, you want to use Jupyter for experiments but may not want to rerun the entire notebook to recreate plots. Additionally, saving data and figures is essential for artifact generation and reproducibility.
-
 
 Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell.
 ```python
