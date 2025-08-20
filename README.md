@@ -23,17 +23,31 @@ Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell.
 
 ### Example
 
+1. Import and load the magic command
 ```python
-# Example:
-%%mplfreeze trig_demo x_data sine cosine tanh
+import matplotlib.pyplot as plt
+import numpy as np
+import lusca
+%load_ext lusca.mpl_freeze
+```
+
+2. Some data
+```python
+x_data = np.linspace(-10, 10, 100)
+sine = np.sin(x_data)
+cosine = np.cos(x_data)
+```
+3. Plot + save
+```python
+%%mplfreeze trig_demo x_data sine cosine
 with plt.style.context("lusca"):
-    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.6), sharey=True)
-    axes[0].plot(x_data, sine, label="Sine")
-    axes[0].plot(x_data, cosine, label="Cosine")
+    fig, ax = plt.subplots(1, 1, figsize=(3.5, 2.6), sharey=True)
+    ax.plot(x_data, sine, label="Sine")
+    ax.plot(x_data, cosine, label="Cosine")
     plt.show()
 ```
 
-An example notebook is available in `src/lusca/01_main.ipynb`. The generated plots are saved in `docs/figs/` with the following structure:
+An example notebook is available in `src/demo.ipynb`. The generated plots are saved in `docs/figs/` with the following structure:
 
 ```
 name_stamp/
@@ -50,6 +64,15 @@ Install `lusca` directly from GitHub:
 ```bash
 pip install -e git+https://github.com/evmckinney9/lusca#egg=lusca
 ```
+
+#### Note
+
+If you are using VS Code, you can set the workspace root as the default directory for saving figures by adding the following setting to your `settings.json` file. Otherwise, output paths will be relative to the notebook location.
+
+```json
+"jupyter.notebookFileRoot": "${workspaceFolder}"
+```
+
 ## 👯 Contributors
 
 <a href="https://github.com/evmckinney9/lusca/graphs/contributors">
