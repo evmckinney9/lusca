@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import lusca
 
 # register the bundled stylesheets in the matplotlib style library
-scienceplots_path = lusca.__path__[0]
-styles_path = os.path.join(scienceplots_path, "styles")
+styles_path = lusca.__path__[0]
+# styles_path = os.path.join(scienceplots_path, "styles")
 
 # Reads styles in /styles folder and all subfolders
 stylesheets = {}  # plt.style.library is a dictionary
