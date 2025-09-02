@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -17,9 +17,11 @@ test = ["pytest"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = {find = {}}
 
-# Include your style files in the wheel
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["lusca*"]
+
 [tool.setuptools.package-data]
 lusca = ["styles/**/*.mplstyle"]
 
