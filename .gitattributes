@@ -1,0 +1,17 @@
+# Normalize all text to LF
+* text=auto eol=lf
+
+# Language-aware diff headers (shows fn/class names in hunks)
+*.py   text diff=python
+*.toml text diff=toml
+
+# Notebooks: diff as text, merge as binary (conflict resolution is hopeless)
+*.ipynb text eol=lf merge=binary linguist-language=Python linguist-documentation
+
+# Binary files
+*.npy binary
+*.npz binary
+*.so  binary
+*.pyd binary
+*.whl binary
+*.pyc binary export-ignore

@@ -1,5 +1,5 @@
-name: 🐛 Bug Report
-description: File a bug report for Python Project
+name: "\U0001F41B Bug Report"
+description: File a bug report for lusca
 title: "[Bug]: "
 labels: ["bug", "triage"]
 assignees:
@@ -8,11 +8,22 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report for our Python Project!
+        Thanks for taking the time to submit a bug report!
   - type: textarea
-    id: description
+    id: bug-description
     attributes:
       label: Bug Description
       placeholder: Describe the bug you encountered here...
+    validations:
+      required: true
+  - type: textarea
+    id: minimal-reproducible-example
+    attributes:
+      label: Minimal Reproducible Example
+      placeholder: |
+        import lusca
+        %load_ext lusca
+        ...
+      render: python
     validations:
       required: true
