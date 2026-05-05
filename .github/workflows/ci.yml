@@ -5,30 +5,24 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    types: [opened, synchronize, ready_for_review]
 
 jobs:
   preflight:
     uses: ./.github/workflows/preflight.yml
 
-  # ---- Lint/Format (pre-commit) ----
-  format:
+  lint:
     needs: preflight
-    if: needs.preflight.outputs.ok == 'true'
+    if: needs.preflight.outputs.ok == 'true' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: |
-            **/pyproject.toml
-            **/poetry.lock
-            **/requirements*.txt
 
       - name: Install pre-commit deps
         run: pip install '.[format]' --quiet
@@ -36,34 +30,23 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --all-files
 
-  # ---- Tests (pytest) ----
-  tests:
+  test:
     needs: preflight
-    if: needs.preflight.outputs.ok == 'true'
+    if: needs.preflight.outputs.ok == 'true' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12"] # add versions like ['3.10','3.11','3.12'] if desired
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
           cache: pip
-          cache-dependency-path: |
-            **/pyproject.toml
-            **/poetry.lock
-            **/requirements*.txt
+          cache-dependency-path: "**/pyproject.toml"
 
-      - name: Install test deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e '.[test]' --quiet
+      - name: Install
+        run: pip install -e '.[test]' --quiet
 
       - name: Run pytest
         run: pytest src/tests/
