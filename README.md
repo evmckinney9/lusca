@@ -12,6 +12,11 @@ The `%%mplfreeze` magic command:
 - Captures the data used in your plots and saves it in a compressed NPZ file.
 - Automatically exports your figures in multiple useful formats.
 - Creates a minimal standalone script that reproduces the figure.
+- Snapshots Python/package versions and the git commit into `<name>.meta.json`.
+- Statically checks the cell for unsaved free names *before* writing anything,
+  then runs the generated replot in a subprocess to confirm the bundle
+  actually reproduces the figure — if `%%mplfreeze` succeeds, the replot is
+  guaranteed to work.
 - Leverages `lusca`'s built-in stylesheet.
 
 Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell.
@@ -29,7 +34,7 @@ Once you're satisfied with your plot, add the `%%mplfreeze` command to the cell.
 import matplotlib.pyplot as plt
 import numpy as np
 import lusca
-%load_ext lusca.mpl_freeze
+%load_ext lusca
 ```
 
 2. Some data
@@ -52,11 +57,12 @@ An example notebook is available in `src/demo.ipynb`. The generated plots are sa
 
 ```
 name_stamp/
-    name.npz
-    name.pdf
+    name.npz             # saved variables
+    name.pdf             # exported figure
     name.png
     name.svg
-    replot_name.py
+    name.meta.json       # python/package versions + git commit
+    replot_name.py       # standalone replot script
 ```
 ## Installation
 

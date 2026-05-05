@@ -387,16 +387,33 @@ def _smoke_test_replot(root: Path, base: str, pixel_threshold: float = 0.01) -> 
 
 
 def mplfreeze(line: str, cell: str):
-    """Jupyter magic command to freeze matplotlib plots with data and replot script.
+    """Freeze a matplotlib cell into a reproducible artifact bundle.
 
-    Captures the current plotting cell, saves specified variables to NPZ format,
-    executes the plot, saves the figure in multiple formats, and generates a
-    standalone replot script for reproducibility.
+    Captures the cell, saves the named variables into a compressed NPZ,
+    exports the figure as PDF/SVG/PNG, writes a standalone
+    ``replot_<name>.py`` that regenerates the figure from the NPZ,
+    snapshots the env (Python + package versions + git commit) into
+    ``<name>.meta.json``, then *runs* the generated replot in a
+    subprocess to confirm the bundle reproduces the figure before
+    declaring success.
+
+    Static checks before any I/O:
+        * Saved variable names that shadow replot-bound names
+          (``np``, ``plt``, ``lusca``, ``os``, ``Path``, ``data``) → warning.
+        * Free names referenced in the cell that aren't saved or
+          defined in-cell → RuntimeError.
+
+    Runtime checks after the cell executes:
+        * Multiple open figures (only ``plt.gcf()`` is saved) → warning.
+        * Replot subprocess exit ≠ 0 or missing figure → RuntimeError.
+        * Replotted PNG differs from the canonical by > 0.01 → warning
+          (not an error; non-determinism like timestamps or unseeded RNG
+          is the most common cause).
 
     Args:
-        line: Magic command line containing name, variable names, and options.
-            Format: "name var1 var2 ... [--outdir DIR]"
-        cell: The plotting code cell content to execute and capture.
+        line: ``"name var1 var2 ... [--outdir DIR]"``. Default outdir
+            is ``docs/figs``.
+        cell: Python source of the cell to capture and execute.
 
     Example:
         %%mplfreeze trig_demo x_data sine cosine tanh
@@ -405,12 +422,19 @@ def mplfreeze(line: str, cell: str):
             axes[0].plot(x_data, sine); axes[0].plot(x_data, cosine)
             axes[1].plot(sine, tanh, linestyle="--")
             axes[1].plot(cosine, tanh, linestyle="--")
-            plt.show()  # optional
+
+    Output layout under ``<outdir>/<name>_<timestamp>/``::
+
+        <name>.npz             # saved variables
+        <name>.{pdf,svg,png}   # exported figure
+        <name>.meta.json       # env + git snapshot
+        replot_<name>.py       # standalone replot script
 
     Raises:
-        RuntimeError: If not running in IPython/Jupyter, no figure found, or
-            the captured cell references names that won't be bound at replot
-            time (i.e. not saved into the NPZ and not defined in the cell).
+        RuntimeError: not in IPython/Jupyter; no figure produced; cell
+            references unsaved free names; or the replot smoke-test
+            fails (subprocess non-zero exit, missing figure, shape
+            mismatch).
     """
     import matplotlib.pyplot as plt
     from IPython import get_ipython

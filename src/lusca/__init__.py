@@ -20,3 +20,10 @@ plt.style.core.update_nested_dict(plt.style.library, stylesheets)
 # Update `plt.style.available`, copy-paste from:
 # https://github.com/matplotlib/matplotlib/blob/a170539a421623bb2967a45a24bb7926e2feb542/lib/matplotlib/style/core.py#L266  # noqa: E501
 plt.style.core.available[:] = sorted(plt.style.library.keys())
+
+# Re-export the magic's IPython hooks so users can do `%load_ext lusca`
+# instead of the longer `%load_ext lusca.mpl_freeze`.
+from lusca.mpl_freeze import (  # noqa: E402, F401
+    load_ipython_extension,
+    unload_ipython_extension,
+)
