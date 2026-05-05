@@ -79,9 +79,3 @@ If you are using VS Code, you can set the workspace root as the default director
 ```json
 "jupyter.notebookFileRoot": "${workspaceFolder}"
 ```
-
-## 👯 Contributors
-
-<a href="https://github.com/evmckinney9/lusca/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=evmckinney9/lusca"/>
-</a>
