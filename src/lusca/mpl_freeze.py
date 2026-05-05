@@ -15,6 +15,7 @@ import logging
 import os
 import platform
 import shlex
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -327,6 +328,68 @@ def _write_metadata(
     (root / f"{base}.meta.json").write_text(json.dumps(meta, indent=2) + "\n")
 
 
+def _maybe_dedupe_against_latest(outdir: Path, base: str, root: Path) -> Path:
+    """If ``{base}_latest`` already points at an identical run, delete root.
+
+    "Identical" means the NPZ and the generated replot script are byte-equal
+    (the figure exports may differ in embedded timestamps even for matching
+    inputs, so we don't compare them). When the user re-runs an unchanged
+    cell, this prevents the output directory from accumulating one new
+    timestamped folder per execution.
+
+    Returns the run folder that should be considered the "current" one —
+    either the prior one (if dedup happened) or ``root`` unchanged.
+    """
+    latest = outdir / f"{base}_latest"
+    if not latest.is_symlink():
+        return root
+    try:
+        prior = (outdir / os.readlink(latest)).resolve()
+    except OSError:
+        return root
+    if not prior.is_dir() or prior == root.resolve():
+        return root
+    npz_a, npz_b = root / f"{base}.npz", prior / f"{base}.npz"
+    rep_a, rep_b = root / f"replot_{base}.py", prior / f"replot_{base}.py"
+    if not (npz_b.exists() and rep_b.exists()):
+        return root
+    if (
+        npz_a.read_bytes() == npz_b.read_bytes()
+        and rep_a.read_bytes() == rep_b.read_bytes()
+    ):
+        shutil.rmtree(root)
+        logging.info(
+            f"[mplfreeze] new run is identical to {prior.name}; removed "
+            f"redundant {root.name} and kept the existing folder."
+        )
+        return prior
+    return root
+
+
+def _update_latest_symlink(outdir: Path, base: str, target: Path) -> None:
+    """Point ``{base}_latest`` at ``target`` (a sibling folder).
+
+    Falls back to writing ``{base}_latest.txt`` containing the target name
+    on platforms / filesystems where symlinks are unavailable (notably
+    Windows without developer mode).
+    """
+    link = outdir / f"{base}_latest"
+    target_name = target.name
+    if link.is_symlink() or link.exists():
+        try:
+            link.unlink()
+        except OSError:
+            pass
+    try:
+        link.symlink_to(target_name, target_is_directory=True)
+    except OSError as e:
+        logging.warning(
+            f"[mplfreeze] could not create symlink {link.name} → "
+            f"{target_name} ({e}); writing {base}_latest.txt pointer instead."
+        )
+        (outdir / f"{base}_latest.txt").write_text(target_name + "\n")
+
+
 def _smoke_test_replot(root: Path, base: str, pixel_threshold: float = 0.01) -> None:
     """Run the generated replot in a subprocess and verify it reproduces the figure.
 
@@ -488,7 +551,13 @@ def mplfreeze(line: str, cell: str):
     # figure. If freeze succeeds, the replot is *guaranteed* to work later.
     _smoke_test_replot(root, base)
 
-    logging.info(f"Run folder: {root}")
+    # Dedupe vs. the prior `{base}_latest` if the new run is identical, then
+    # update the symlink so callers can embed a stable path in their docs.
+    outdir_path = Path(outdir)
+    final_root = _maybe_dedupe_against_latest(outdir_path, base, root)
+    _update_latest_symlink(outdir_path, base, final_root)
+
+    logging.info(f"Run folder: {final_root} (latest → {base}_latest)")
 
 
 # ---- IPython extension hooks ----

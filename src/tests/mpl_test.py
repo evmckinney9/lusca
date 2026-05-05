@@ -5,15 +5,18 @@ import os
 import subprocess
 import textwrap
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import pytest
 
 from src.lusca.mpl_freeze import (
     _check_free_names,
+    _maybe_dedupe_against_latest,
     _parse_line,
     _save_npz,
     _smoke_test_replot,
+    _update_latest_symlink,
     _warn_on_extra_figures,
     _warn_on_reserved_varnames,
     _write_metadata,
@@ -378,3 +381,88 @@ def test_warn_on_extra_figures_single(caplog):
     with caplog.at_level(logging.WARNING, logger="root"):
         _warn_on_extra_figures([1], kept_num=1)
     assert caplog.text == ""
+
+
+# ---- {base}_latest symlink + dedupe ----
+
+
+def _stub_run(outdir, base, stamp, npz_payload, replot_payload):
+    """Build a minimal `<base>_<stamp>/` folder with stub NPZ + replot files."""
+    folder = outdir / f"{base}_{stamp}"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / f"{base}.npz").write_bytes(npz_payload)
+    (folder / f"replot_{base}.py").write_bytes(replot_payload)
+    return folder
+
+
+def test_update_latest_symlink_creates_when_missing(tmp_path):
+    """First freeze: no prior symlink, one is created pointing at the new run."""
+    target = _stub_run(tmp_path, "demo", "001", b"x", b"y")
+    _update_latest_symlink(tmp_path, "demo", target)
+
+    link = tmp_path / "demo_latest"
+    assert link.is_symlink()
+    assert os.readlink(link) == target.name
+    assert (link / "demo.npz").read_bytes() == b"x"
+
+
+def test_update_latest_symlink_replaces_existing(tmp_path):
+    """Second freeze: symlink is updated to point at the newer folder."""
+    first = _stub_run(tmp_path, "demo", "001", b"x", b"y")
+    second = _stub_run(tmp_path, "demo", "002", b"x2", b"y2")
+    _update_latest_symlink(tmp_path, "demo", first)
+    _update_latest_symlink(tmp_path, "demo", second)
+
+    link = tmp_path / "demo_latest"
+    assert os.readlink(link) == second.name
+
+
+def test_dedupe_removes_redundant_run(tmp_path, caplog):
+    """A new run identical to `{base}_latest` gets nuked; symlink stays put."""
+    prior = _stub_run(tmp_path, "demo", "001", b"npz-bytes", b"replot-bytes")
+    _update_latest_symlink(tmp_path, "demo", prior)
+    new = _stub_run(tmp_path, "demo", "002", b"npz-bytes", b"replot-bytes")
+
+    with caplog.at_level(logging.INFO, logger="root"):
+        final = _maybe_dedupe_against_latest(tmp_path, "demo", new)
+
+    assert final == prior.resolve()
+    assert not new.exists()
+    assert prior.exists()
+    assert "removed redundant" in caplog.text
+
+
+def test_dedupe_keeps_run_when_npz_differs(tmp_path):
+    """Different NPZ → both folders kept; caller should advance the symlink."""
+    prior = _stub_run(tmp_path, "demo", "001", b"old", b"replot")
+    _update_latest_symlink(tmp_path, "demo", prior)
+    new = _stub_run(tmp_path, "demo", "002", b"new", b"replot")
+
+    final = _maybe_dedupe_against_latest(tmp_path, "demo", new)
+    assert final == new
+    assert prior.exists()
+    assert new.exists()
+
+
+def test_dedupe_keeps_run_when_replot_differs(tmp_path):
+    """Same NPZ but a changed cell (replot bytes differ) → keep new."""
+    prior = _stub_run(tmp_path, "demo", "001", b"npz", b"old-cell")
+    _update_latest_symlink(tmp_path, "demo", prior)
+    new = _stub_run(tmp_path, "demo", "002", b"npz", b"new-cell")
+
+    assert _maybe_dedupe_against_latest(tmp_path, "demo", new) == new
+
+
+def test_update_latest_symlink_falls_back_to_text_pointer(tmp_path, monkeypatch):
+    """If symlink() raises (e.g. Windows w/o priv), write a {base}_latest.txt."""
+    target = _stub_run(tmp_path, "demo", "001", b"x", b"y")
+
+    def _boom(self, *args, **kwargs):
+        raise OSError("symlink not permitted")
+
+    monkeypatch.setattr(Path, "symlink_to", _boom)
+    _update_latest_symlink(tmp_path, "demo", target)
+
+    pointer = tmp_path / "demo_latest.txt"
+    assert pointer.exists()
+    assert pointer.read_text().strip() == target.name
