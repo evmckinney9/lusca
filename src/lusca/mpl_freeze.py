@@ -40,6 +40,34 @@ def _parse_line(line: str):
     return a.name, a.vars, a.outdir
 
 
+def _warn_on_reserved_varnames(varnames: list[str]) -> None:
+    """Warn if any saved varname shadows a name the replot pre-binds.
+
+    The replot does ``import numpy as np`` etc. before binding NPZ data,
+    so a saved variable named ``np`` will silently overwrite the numpy
+    import in the replot's namespace. Almost always a mistake.
+    """
+    clashes = sorted(set(varnames) & _REPLOT_PROVIDED)
+    if clashes:
+        logging.warning(
+            f"[mplfreeze] saved variable(s) {clashes} shadow names the replot "
+            f"pre-binds {sorted(_REPLOT_PROVIDED)}; the NPZ value will overwrite "
+            f"the import (e.g. saving 'np' replaces numpy). Rename if "
+            f"unintentional."
+        )
+
+
+def _warn_on_extra_figures(fignums: list[int], kept_num: int) -> None:
+    """Warn if the cell created multiple figures; only ``kept_num`` is saved."""
+    if len(fignums) > 1:
+        logging.warning(
+            f"[mplfreeze] cell created {len(fignums)} figures "
+            f"(numbers={sorted(fignums)}); only fig#{kept_num} was saved. "
+            f"To capture the others, split them into separate %%mplfreeze "
+            f"cells or assign the desired one to `fig`."
+        )
+
+
 def _collect_loaded_names(tree: ast.AST) -> set[str]:
     return {
         n.id
@@ -396,6 +424,7 @@ def mplfreeze(line: str, cell: str):
     base, varnames, outdir = _parse_line(line)
 
     # Validate the captured cell can run standalone before touching the disk.
+    _warn_on_reserved_varnames(varnames)
     _check_free_names(cell, varnames)
 
     # create run folder
@@ -418,6 +447,7 @@ def mplfreeze(line: str, cell: str):
         raise RuntimeError(
             "[mplfreeze] No Matplotlib Figure found as 'fig' or current figure."
         )
+    _warn_on_extra_figures(plt.get_fignums(), fig.number)
     for ext in ("pdf", "svg", "png"):
         fig.savefig(root / f"{base}.{ext}")
     logging.info(f"Saved figure → {root}/{base}.{{pdf,svg,png}}")

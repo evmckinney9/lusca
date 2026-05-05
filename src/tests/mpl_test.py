@@ -14,6 +14,8 @@ from src.lusca.mpl_freeze import (
     _parse_line,
     _save_npz,
     _smoke_test_replot,
+    _warn_on_extra_figures,
+    _warn_on_reserved_varnames,
     _write_metadata,
     _write_replot,
 )
@@ -340,3 +342,39 @@ def test_write_metadata_records_git_when_available(tmp_path, monkeypatch):
     assert len(meta["git"]["commit"]) == 40
     assert meta["git"]["branch"] == "main"
     assert meta["git"]["dirty"] is True
+
+
+# ---- Cheap correctness warnings ----
+
+
+def test_warn_reserved_varnames_clash(caplog):
+    """Saving a varname that shadows np/plt/data/etc. emits a warning."""
+    with caplog.at_level(logging.WARNING, logger="root"):
+        _warn_on_reserved_varnames(["x", "np", "results"])
+    assert "shadow" in caplog.text
+    assert "'np'" in caplog.text
+    # Non-clashing names are not mentioned in the clash list.
+    assert "['np']" in caplog.text or "'np'" in caplog.text
+
+
+def test_warn_reserved_varnames_clean(caplog):
+    """Normal varnames produce no warning."""
+    with caplog.at_level(logging.WARNING, logger="root"):
+        _warn_on_reserved_varnames(["x_data", "sine", "results"])
+    assert caplog.text == ""
+
+
+def test_warn_on_extra_figures_multi(caplog):
+    """Cell creating multiple figures warns and lists their numbers."""
+    with caplog.at_level(logging.WARNING, logger="root"):
+        _warn_on_extra_figures([1, 2, 3], kept_num=2)
+    assert "3 figures" in caplog.text
+    assert "fig#2" in caplog.text
+    assert "[1, 2, 3]" in caplog.text
+
+
+def test_warn_on_extra_figures_single(caplog):
+    """A single-figure cell is silent."""
+    with caplog.at_level(logging.WARNING, logger="root"):
+        _warn_on_extra_figures([1], kept_num=1)
+    assert caplog.text == ""
