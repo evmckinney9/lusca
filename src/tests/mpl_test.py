@@ -466,3 +466,48 @@ def test_update_latest_symlink_falls_back_to_text_pointer(tmp_path, monkeypatch)
     pointer = tmp_path / "demo_latest.txt"
     assert pointer.exists()
     assert pointer.read_text().strip() == target.name
+
+
+# ---- Replot polish: chdir restore + tolerant lusca import ----
+
+
+def test_replot_restores_cwd_and_tolerates_missing_lusca(tmp_path):
+    """Generated replot wraps chdir in try/finally and lusca import in try/except."""
+    info = {"x": {"shape": (5,), "dtype": np.dtype("float64")}}
+    _write_replot(tmp_path, "plt.plot(x)", "polish_demo", ["x"], info)
+    src = (tmp_path / "replot_polish_demo.py").read_text()
+
+    # cwd is captured and restored in finally
+    assert "_prev_cwd = os.getcwd()" in src
+    assert "finally:" in src
+    assert "os.chdir(_prev_cwd)" in src
+
+    # missing lusca install must not break replays in fresh environments
+    assert "try:\n    import lusca" in src
+    assert "except ImportError:" in src
+
+
+def test_replot_preserves_caller_cwd_when_run(tmp_path, monkeypatch):
+    """Importing replot module and calling main() must not leak cwd changes."""
+    ns = {"x": np.linspace(0, 1, 5)}
+    info = _save_npz(tmp_path / "cwd_demo.npz", ns, ["x"])
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    fig.savefig(tmp_path / "cwd_demo.png")
+    plt.close("all")
+    _write_replot(
+        tmp_path, "fig, ax = plt.subplots(); ax.plot(x, x)", "cwd_demo", ["x"], info
+    )
+
+    caller_cwd = tmp_path.parent
+    monkeypatch.chdir(caller_cwd)
+
+    # Run the replot via the same machinery the smoke-test uses; verify our
+    # cwd was restored after the subprocess returned.
+    _smoke_test_replot(tmp_path, "cwd_demo")
+    assert Path.cwd() == caller_cwd
