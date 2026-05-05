@@ -408,6 +408,10 @@ def _smoke_test_replot(root: Path, base: str, pixel_threshold: float = 0.01) -> 
     """
     import matplotlib.image as mpimg
 
+    # Absolute paths matter: the replot subprocess chdir's to its own folder
+    # before resolving any path it received, so a relative check_png would
+    # be interpreted relative to the new cwd and fail.
+    root = root.resolve()
     replot = root / f"replot_{base}.py"
     canonical_png = root / f"{base}.png"
     check_png = root / f".{base}.smoke.png"

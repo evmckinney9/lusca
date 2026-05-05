@@ -213,6 +213,23 @@ def _bake_run_folder(tmp_path, ns, varnames, cell_src, base="demo"):
     return base
 
 
+def test_smoke_test_works_with_relative_root(tmp_path, monkeypatch, caplog):
+    """Production passes a relative outdir like 'docs/figs/...'; resolve internally."""
+    ns = {"x": np.linspace(0, 1, 50), "y": np.cos(np.linspace(0, 1, 50))}
+    cell = "fig, ax = plt.subplots(); ax.plot(x, y)"
+    base = _bake_run_folder(tmp_path, ns, ["x", "y"], cell, base="reldemo")
+
+    # Invoke smoke-test with a *relative* path, mimicking how mplfreeze() is
+    # called with `--outdir docs/figs`. Pre-fix, the replot subprocess would
+    # chdir to its own folder and then fail to resolve the relative
+    # check_png path.
+    monkeypatch.chdir(tmp_path.parent)
+    rel_root = Path(tmp_path.name)
+    with caplog.at_level(logging.INFO, logger="root"):
+        _smoke_test_replot(rel_root, base)
+    assert "smoke-test passed" in caplog.text
+
+
 def test_smoke_test_passes_for_deterministic_cell(tmp_path, caplog):
     """A clean cell whose replot reproduces the figure passes silently."""
     ns = {"x": np.linspace(0, 1, 50), "y": np.sin(np.linspace(0, 1, 50))}
