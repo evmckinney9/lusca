@@ -6,9 +6,39 @@ build-backend = "setuptools.build_meta"
 name = "lusca"
 description = "A Jupyter magic command for creating reproducible matplotlib figures."
 version = "0.1.0"
-authors = [{ name = "evmckinney9" }]
+authors = [{ name = "Evan McKinney", email = "evmckinney9@gmail.com" }]
+license = { text = "MIT" }
+readme = "README.md"
 requires-python = ">=3.9"
+keywords = [
+    "jupyter",
+    "ipython-magic",
+    "matplotlib",
+    "reproducibility",
+    "figures",
+    "scientific-plotting",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Plugins",
+    "Framework :: IPython",
+    "Framework :: Jupyter",
+    "Framework :: Matplotlib",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
 dependencies = ["numpy", "matplotlib"]
+
+[project.urls]
+Homepage = "https://github.com/evmckinney9/lusca"
+Repository = "https://github.com/evmckinney9/lusca"
+Issues = "https://github.com/evmckinney9/lusca/issues"
 
 [project.optional-dependencies]
 dev = ["ipykernel", "pylatexenc", "ipywidgets", "pre-commit"]
