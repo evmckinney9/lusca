@@ -10,6 +10,7 @@ from src.lusca.mpl_freeze import (
     _check_free_names,
     _parse_line,
     _save_npz,
+    _smoke_test_replot,
     _write_replot,
 )
 
@@ -179,3 +180,86 @@ def test_check_free_names_skips_on_syntax_error(caplog):
     with caplog.at_level(logging.WARNING, logger="root"):
         _check_free_names(cell, [])  # no raise even though `x` is "missing"
     assert "skipping free-name check" in caplog.text
+
+
+# ---- Replot smoke-test ----
+
+
+def _bake_run_folder(tmp_path, ns, varnames, cell_src, base="demo"):
+    """Build a freeze-folder on disk: NPZ + canonical PNG + replot script."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    info = _save_npz(tmp_path / f"{base}.npz", ns, varnames)
+
+    exec_ns = {"plt": plt, "np": np, **ns}
+    plt.close("all")
+    exec(cell_src, exec_ns)
+    plt.gcf().savefig(tmp_path / f"{base}.png")
+    plt.close("all")
+
+    _write_replot(tmp_path, cell_src, base, varnames, info)
+    return base
+
+
+def test_smoke_test_passes_for_deterministic_cell(tmp_path, caplog):
+    """A clean cell whose replot reproduces the figure passes silently."""
+    ns = {"x": np.linspace(0, 1, 50), "y": np.sin(np.linspace(0, 1, 50))}
+    cell = "fig, ax = plt.subplots(); ax.plot(x, y)"
+    base = _bake_run_folder(tmp_path, ns, ["x", "y"], cell)
+
+    with caplog.at_level(logging.INFO, logger="root"):
+        _smoke_test_replot(tmp_path, base)
+
+    assert "smoke-test passed" in caplog.text
+    assert "FAILED" not in caplog.text
+    # Smoke-check artifact is cleaned up.
+    assert not (tmp_path / f".{base}.smoke.png").exists()
+
+
+def test_smoke_test_raises_on_replot_runtime_error(tmp_path):
+    """If the cell raises at runtime (e.g. shape mismatch), smoke-test fails loud."""
+    ns = {"x": np.linspace(0, 1, 50), "y": np.sin(np.linspace(0, 1, 50))}
+    # The cell parses fine and has no free-names, but explodes at runtime.
+    cell = "fig, ax = plt.subplots(); ax.plot(x, y); raise ValueError('boom')"
+
+    info = _save_npz(tmp_path / "demo.npz", ns, ["x", "y"])
+    # Hand-write the canonical PNG so the smoke-test gets that far.
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    plt.figure().savefig(tmp_path / "demo.png")
+    plt.close("all")
+    _write_replot(tmp_path, cell, "demo", ["x", "y"], info)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        _smoke_test_replot(tmp_path, "demo")
+    assert "smoke-test FAILED" in str(excinfo.value)
+    assert "ValueError" in str(excinfo.value) or "boom" in str(excinfo.value)
+
+
+def test_smoke_test_warns_on_pixel_drift(tmp_path, caplog):
+    """A cell whose replot draws something different triggers a warning, not a raise."""
+    ns = {"x": np.linspace(0, 1, 50)}
+    # Save a canonical PNG that the replot will NOT reproduce: replot draws
+    # `plt.plot(x)`, but we save a canonical of an empty figure.
+    info = _save_npz(tmp_path / "drift.npz", ns, ["x"])
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    fig.savefig(tmp_path / "drift.png")  # blank canonical
+    plt.close("all")
+    _write_replot(
+        tmp_path, "fig, ax = plt.subplots(); ax.plot(x, x)", "drift", ["x"], info
+    )
+
+    with caplog.at_level(logging.WARNING, logger="root"):
+        _smoke_test_replot(tmp_path, "drift")
+    assert "not pixel-faithful" in caplog.text
