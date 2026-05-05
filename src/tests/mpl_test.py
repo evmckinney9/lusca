@@ -1,7 +1,10 @@
 """Tests for src.lusca.mpl_freeze."""
 
 import logging
+import os
+import subprocess
 import textwrap
+from datetime import datetime
 
 import numpy as np
 import pytest
@@ -11,6 +14,7 @@ from src.lusca.mpl_freeze import (
     _parse_line,
     _save_npz,
     _smoke_test_replot,
+    _write_metadata,
     _write_replot,
 )
 
@@ -263,3 +267,76 @@ def test_smoke_test_warns_on_pixel_drift(tmp_path, caplog):
     with caplog.at_level(logging.WARNING, logger="root"):
         _smoke_test_replot(tmp_path, "drift")
     assert "not pixel-faithful" in caplog.text
+
+
+# ---- Environment metadata sidecar ----
+
+
+def test_write_metadata_records_versions_and_args(tmp_path):
+    """Sidecar JSON captures the magic invocation and pinned package versions."""
+    import json as _json
+
+    _write_metadata(
+        tmp_path,
+        base="demo",
+        line="demo x y --outdir somewhere",
+        varnames=["x", "y"],
+        outdir="somewhere",
+    )
+    meta = _json.loads((tmp_path / "demo.meta.json").read_text())
+
+    assert meta["base"] == "demo"
+    assert meta["varnames"] == ["x", "y"]
+    assert meta["outdir"] == "somewhere"
+    assert meta["magic_line"] == "demo x y --outdir somewhere"
+    assert meta["python"].count(".") >= 1
+    assert "platform" in meta and meta["platform"]
+    assert meta["packages"]["numpy"] is not None
+    assert meta["packages"]["matplotlib"] is not None
+    assert meta["packages"]["lusca"] is not None
+    # freeze_time round-trips as ISO-8601.
+    datetime.fromisoformat(meta["freeze_time"])
+
+
+def test_write_metadata_handles_missing_git(tmp_path, monkeypatch):
+    """Outside a git repo, metadata still writes successfully with git=None."""
+    import json as _json
+
+    monkeypatch.chdir(tmp_path)  # tmp_path is not a git repo
+    _write_metadata(tmp_path, "demo", "demo x", ["x"], "out")
+    meta = _json.loads((tmp_path / "demo.meta.json").read_text())
+    assert meta["git"] is None
+
+
+def test_write_metadata_records_git_when_available(tmp_path, monkeypatch):
+    """Inside a real git repo we capture commit + branch + dirty flag."""
+    import json as _json
+    import shutil
+
+    if shutil.which("git") is None:
+        pytest.skip("git not installed")
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    monkeypatch.chdir(repo)
+    # Minimal repo with one commit; -c flags so we don't need a global identity.
+    env = {
+        **os.environ,
+        "GIT_AUTHOR_NAME": "t",
+        "GIT_AUTHOR_EMAIL": "t@t",
+        "GIT_COMMITTER_NAME": "t",
+        "GIT_COMMITTER_EMAIL": "t@t",
+    }
+    for cmd in (
+        ["git", "init", "-q", "-b", "main"],
+        ["git", "commit", "-q", "--allow-empty", "-m", "init"],
+    ):
+        subprocess.run(cmd, cwd=repo, env=env, check=True, capture_output=True)
+    (repo / "dirty.txt").write_text("x")  # working tree is now dirty
+
+    _write_metadata(repo, "demo", "demo x", ["x"], "out")
+    meta = _json.loads((repo / "demo.meta.json").read_text())
+    assert meta["git"] is not None
+    assert len(meta["git"]["commit"]) == 40
+    assert meta["git"]["branch"] == "main"
+    assert meta["git"]["dirty"] is True

@@ -10,13 +10,16 @@ from __future__ import annotations
 import argparse
 import ast
 import builtins as _builtins
+import json
 import logging
 import os
+import platform
 import shlex
 import subprocess
 import sys
 import textwrap
 from datetime import datetime
+from importlib import metadata as importlib_metadata
 from pathlib import Path
 
 import numpy as np
@@ -229,6 +232,73 @@ if __name__ == "__main__":
     (root / f"replot_{base}.py").write_text(code)
 
 
+def _git_snapshot(cwd: Path) -> dict | None:
+    """Return {commit, branch, dirty} for the git repo at cwd, or None."""
+
+    def _git(*args: str) -> str | None:
+        try:
+            r = subprocess.run(
+                ["git", "-C", str(cwd), *args],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+        return r.stdout.strip() if r.returncode == 0 else None
+
+    commit = _git("rev-parse", "HEAD")
+    if commit is None:
+        return None
+    branch = _git("rev-parse", "--abbrev-ref", "HEAD")
+    status = _git("status", "--porcelain")
+    return {
+        "commit": commit,
+        "branch": branch,
+        "dirty": bool(status) if status is not None else None,
+    }
+
+
+def _package_version(name: str) -> str | None:
+    try:
+        return importlib_metadata.version(name)
+    except importlib_metadata.PackageNotFoundError:
+        return None
+
+
+def _write_metadata(
+    root: Path,
+    base: str,
+    line: str,
+    varnames: list[str],
+    outdir: str,
+) -> None:
+    """Write `<base>.meta.json` snapshotting the freeze environment.
+
+    Captures Python/numpy/matplotlib/lusca versions, the platform string,
+    git commit + dirty state (if cwd is in a repo), and the magic invocation.
+    Future-you needs this when matplotlib's defaults shift and the frozen
+    PNG no longer matches what the replot draws.
+    """
+    meta = {
+        "freeze_time": datetime.now().isoformat(timespec="seconds"),
+        "magic_line": line,
+        "base": base,
+        "varnames": list(varnames),
+        "outdir": outdir,
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "packages": {
+            "numpy": _package_version("numpy"),
+            "matplotlib": _package_version("matplotlib"),
+            "lusca": _package_version("lusca"),
+        },
+        "git": _git_snapshot(Path.cwd()),
+    }
+    (root / f"{base}.meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+
+
 def _smoke_test_replot(root: Path, base: str, pixel_threshold: float = 0.01) -> None:
     """Run the generated replot in a subprocess and verify it reproduces the figure.
 
@@ -355,6 +425,10 @@ def mplfreeze(line: str, cell: str):
     # write replot script with explicit local bindings
     _write_replot(root, cell, base, varnames, info)
     logging.info(f"Wrote {root / f'replot_{base}.py'}")
+
+    # snapshot environment versions / git state for future debugging
+    _write_metadata(root, base, line, varnames, outdir)
+    logging.info(f"Wrote {root / f'{base}.meta.json'}")
 
     # Smoke-test: actually exec the replot and confirm it produces the same
     # figure. If freeze succeeds, the replot is *guaranteed* to work later.
