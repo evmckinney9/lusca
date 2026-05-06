@@ -291,6 +291,25 @@ def test_smoke_test_warns_on_pixel_drift(tmp_path, caplog):
     assert "not pixel-faithful" in caplog.text
 
 
+def test_replot_uses_out_flag_and_ignores_unknown_args(tmp_path):
+    """Replot's CLI uses --out so Jupyter argv pollution can't crash savefig.
+
+    e.g. `-f /tmp/.../kernel-XXX.json` would have been read as the savefig
+    destination under the old positional-arg form.
+    """
+    info = {"x": {"shape": (5,), "dtype": np.dtype("float64")}}
+    _write_replot(
+        tmp_path, "fig, ax = plt.subplots(); ax.plot(x)", "argv_demo", ["x"], info
+    )
+    src = (tmp_path / "replot_argv_demo.py").read_text()
+
+    # New CLI: --out flag, parse_known_args (so unknown flags don't crash).
+    assert "--out" in src
+    assert "parse_known_args" in src
+    # Old buggy form must be gone.
+    assert "sys.argv[1]" not in src
+
+
 # ---- Environment metadata sidecar ----
 
 
