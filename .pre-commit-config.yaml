@@ -27,14 +27,10 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
-      - id: check-docstring-first
       - id: check-merge-conflict
-      - id: check-toml
-      - id: check-yaml
       - id: detect-private-key
-      # - id: check-added-large-files
-      - id: forbid-submodules
+      - id: check-added-large-files
+        args: [--maxkb=2000]
       - id: name-tests-test
-        args: [--pytest]
-      - id: pretty-format-json
-        args: [--autofix]
+        args: [--pytest-test-first]
+        exclude: ^src/tests/fixtures/

@@ -30,27 +30,18 @@ jobs:
           fi
           echo "Version $PKG matches tag v$TAG"
 
-  build_wheels:
+  build_wheel:
     needs: check_version
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-14
-    env:
-      CIBW_SKIP: "cp36-* cp37-* cp38-* pp* *-win32 *-musllinux* *_i686"
+    name: Build pure-Python wheel
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.0
+      - name: Build wheel
+        run: pipx run build --wheel
       - uses: actions/upload-artifact@v7
         with:
-          name: cibw-wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
+          name: cibw-wheel
+          path: dist/*.whl
 
   build_sdist:
     name: Build source distribution
@@ -67,7 +58,7 @@ jobs:
 
   release:
     name: GitHub Release (draft)
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheel, build_sdist]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
