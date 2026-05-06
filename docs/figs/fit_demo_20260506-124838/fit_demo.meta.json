@@ -1,0 +1,26 @@
+{
+  "freeze_time": "2026-05-06T12:48:39",
+  "magic_line": "fit_demo x_d y_obs sigma y_fit resid coeffs",
+  "base": "fit_demo",
+  "varnames": [
+    "x_d",
+    "y_obs",
+    "sigma",
+    "y_fit",
+    "resid",
+    "coeffs"
+  ],
+  "outdir": "docs/figs",
+  "python": "3.12.3",
+  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "packages": {
+    "numpy": "2.4.4",
+    "matplotlib": "3.10.9",
+    "lusca": "0.1.0"
+  },
+  "git": {
+    "commit": "822a81fc0f1fb05e93384cca34460bd205beada2",
+    "branch": "main",
+    "dirty": true
+  }
+}

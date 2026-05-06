@@ -1,0 +1,27 @@
+{
+  "freeze_time": "2026-05-06T12:48:31",
+  "magic_line": "timeseries_demo t y mavg evt_a evt_b freq Pxx",
+  "base": "timeseries_demo",
+  "varnames": [
+    "t",
+    "y",
+    "mavg",
+    "evt_a",
+    "evt_b",
+    "freq",
+    "Pxx"
+  ],
+  "outdir": "docs/figs",
+  "python": "3.12.3",
+  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "packages": {
+    "numpy": "2.4.4",
+    "matplotlib": "3.10.9",
+    "lusca": "0.1.0"
+  },
+  "git": {
+    "commit": "822a81fc0f1fb05e93384cca34460bd205beada2",
+    "branch": "main",
+    "dirty": true
+  }
+}
