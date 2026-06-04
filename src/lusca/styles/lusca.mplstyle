@@ -1,6 +1,7 @@
 # === Figure ===
 figure.figsize: 3.5, 2.6 # compact, journal-friendly
-figure.dpi: 600
+figure.dpi: 100
+savefig.dpi: 600
 
 # === Fonts ===
 font.family: DejaVu Sans # simple, consistent with your prefs

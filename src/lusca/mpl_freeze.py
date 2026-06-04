@@ -567,7 +567,8 @@ def mplfreeze(line: str, cell: str):
         )
     _warn_on_extra_figures(plt.get_fignums(), fig.number)
     for ext in ("pdf", "svg", "png"):
-        fig.savefig(root / f"{base}.{ext}")
+        kw = {"dpi": 600} if ext == "png" else {}
+        fig.savefig(root / f"{base}.{ext}", **kw)
     logging.info(f"Saved figure → {root}/{base}.{{pdf,svg,png}}")
 
     # write replot script with explicit local bindings
