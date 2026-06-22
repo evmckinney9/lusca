@@ -1,25 +1,24 @@
 # https://github.com/garrettj403/SciencePlots/blob/master/scienceplots/__init__.py
+import glob
 import os  # pathlib.Path.walk not available in Python <3.12
 
 import matplotlib.pyplot as plt
+from matplotlib import rc_params_from_file
 
 import lusca
 
 # register the bundled stylesheets in the matplotlib style library
 styles_path = lusca.__path__[0]
-# styles_path = os.path.join(scienceplots_path, "styles")
 
-# Reads styles in /styles folder and all subfolders
-stylesheets = {}  # plt.style.library is a dictionary
+# Read every *.mplstyle under styles_path into plt.style.library. matplotlib 3.11
+# deprecated style.core.read_style_directory/update_nested_dict (removal in 3.13);
+# this is the public-API equivalent (what read_style_directory did internally).
 for folder, _, _ in os.walk(styles_path):
-    new_stylesheets = plt.style.core.read_style_directory(folder)
-    stylesheets.update(new_stylesheets)
+    for path in glob.glob(os.path.join(folder, "*.mplstyle")):
+        name = os.path.splitext(os.path.basename(path))[0]
+        plt.style.library[name] = rc_params_from_file(path, use_default_template=False)
 
-# Update dictionary of styles - plt.style.library
-plt.style.core.update_nested_dict(plt.style.library, stylesheets)
-# Update `plt.style.available`, copy-paste from:
-# https://github.com/matplotlib/matplotlib/blob/a170539a421623bb2967a45a24bb7926e2feb542/lib/matplotlib/style/core.py#L266  # noqa: E501
-plt.style.core.available[:] = sorted(plt.style.library.keys())
+plt.style.available[:] = sorted(plt.style.library.keys())
 
 # Re-export the magic's IPython hooks so users can do `%load_ext lusca`
 # instead of the longer `%load_ext lusca.mpl_freeze`.
